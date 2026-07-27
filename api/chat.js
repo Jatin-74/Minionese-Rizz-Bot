@@ -1,10 +1,13 @@
 // api/chat.js
-import { kv } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
 import { Ratelimit } from '@upstash/ratelimit';
+
+// Connect to Upstash Redis using environment variables
+const redis = Redis.fromEnv();
 
 // Create a new ratelimiter that allows 5 requests per 1 minute per IP
 const ratelimit = new Ratelimit({
-    redis: kv,
+    redis: redis,
     limiter: Ratelimit.slidingWindow(5, '1 m'),
 });
 
