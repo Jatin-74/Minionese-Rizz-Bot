@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minionese | Rizz Communicator</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Titan+One&family=VT323&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <!-- CUSTOM MESSAGING INTRO SEQUENCE -->
+    <div id="intro-overlay">
+        <div class="pda-device">
+            <div class="pda-header">
+                <div class="screw-mini"></div>
+                <span>BANANA-LINK SECURE</span>
+                <div class="screw-mini"></div>
+            </div>
+            <div class="pda-screen" id="chat-container">
+                
+                <div class="msg-row left hidden-msg" id="msg-1">
+                    <div class="msg-avatar kevin-avatar">K</div>
+                    <div class="msg-bubble skeuo-bubble blue-bubble">Bello!</div>
+                </div>
+
+                <div class="msg-row right hidden-msg" id="msg-2">
+                    <div class="msg-bubble skeuo-bubble yellow-bubble">Poka bananonina?</div>
+                    <div class="msg-avatar stuart-avatar">S</div>
+                </div>
+
+                <div class="msg-row left hidden-msg" id="msg-3">
+                    <div class="msg-avatar bob-avatar">B</div>
+                    <div class="msg-bubble skeuo-bubble green-bubble">Tulaliloo ti amo!</div>
+                </div>
+
+                <div class="msg-row right hidden-msg" id="msg-4">
+                    <div class="msg-bubble skeuo-bubble yellow-bubble">Muak muak?</div>
+                    <div class="msg-avatar stuart-avatar">S</div>
+                </div>
+
+                <div class="msg-row left hidden-msg" id="msg-5">
+                    <div class="msg-avatar kevin-avatar">K</div>
+                    <div class="msg-bubble skeuo-bubble blue-bubble">Bi do... rizz.</div>
+                </div>
+
+            </div>
+        </div>
+        <button id="skip-btn" onclick="closeIntro()">SKIP SEQUENCE >></button>
+    </div>
+
+    <!-- ZONE 1: HERO SECTION -->
+    <header id="hero-section">
+        <div class="physical-signboard">
+            <div class="screw top-left"></div>
+            <div class="screw top-right"></div>
+            
+            <h1 class="hero-title">MINIONESE</h1>
+            <p class="hero-tagline">The Universal Language of Rizz.</p>
+            
+            <a href="#workbench-section" class="try-now-btn">INITIALIZE</a>
+
+            <div class="screw bottom-left"></div>
+            <div class="screw bottom-right"></div>
+        </div>
+    </header>
+
+    <!-- ZONE 2: WORKBENCH SECTION -->
+    <section id="workbench-section">
+        <div id="workbench">
+            
+            <!-- The Action Figures -->
+            <div id="minion-stage">
+                <div class="minion-figure" id="kevin" onclick="selectMinion('Kevin')">
+                    <img src="assets/kevin-render.png" alt="Kevin" class="minion-img">
+                    <div class="name-tag">KEVIN</div>
+                </div>
+                
+                <div class="minion-figure" id="stuart" onclick="selectMinion('Stuart')">
+                    <img src="assets/stuart-render.png" alt="Stuart" class="minion-img">
+                    <div class="name-tag">STUART</div>
+                </div>
+                
+                <div class="minion-figure" id="bob" onclick="selectMinion('Bob')">
+                    <img src="assets/bob-render.png" alt="Bob" class="minion-img">
+                    <div class="name-tag">BOB</div>
+                </div>
+            </div>
+
+            <!-- The Skeuomorphic Hardware Console -->
+            <div id="control-panel">
+                <div class="panel-header">
+                    <div class="screw"></div>
+                    <h2>RIZZ COMMUNICATOR V2.0</h2>
+                    <div class="screw"></div>
+                </div>
+
+                <div class="input-section">
+                    <textarea id="user-input" placeholder="Initialize query..."></textarea>
+                    <button id="ask-btn" onclick="transmit()">TRANSMIT</button>
+                </div>
+
+                <div id="lcd-bezel">
+                    <div id="lcd-screen">
+                        <p id="minionese-output">AWAITING SYSTEM BOOT...</p>
+                        <p id="english-translation"></p>
+                    </div>
+                </div>
+
+                <!-- Transmission Memory Log -->
+                <div id="memory-log-container">
+                    <h3 class="memory-title">TRANSMISSION LOG (LOCAL)</h3>
+                    <div id="memory-log">
+                        <!-- Log entries load here via JS -->
+                    </div>
+                    <button id="clear-memory-btn" onclick="clearMemory()">PURGE MEMORY</button>
+                </div>
+
+                <!-- Warning Label Button -->
+                <button id="warning-btn" onclick="openDisclaimer()">⚠️ LEGAL / SYS INFO</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- DISCLAIMER MODAL -->
+    <div id="disclaimer-modal" class="hidden-modal">
+        <div class="physical-plate">
+            <div class="screw top-left"></div>
+            <div class="screw top-right"></div>
+            
+            <h3>WARNING: PARODY DEVICE</h3>
+            <p>This is a fan-made parody project and is <strong>NOT</strong> affiliated with, endorsed, sponsored, or approved by Universal Pictures, Illumination, or any of their affiliates.</p>
+            <p>All Minion characters, names, and related indicia are trademarks of and © Universal Studios.</p>
+            <p>Use this device for comedic rizz translation at your own risk.</p>
+            
+            <button id="close-modal-btn" onclick="closeDisclaimer()">ACKNOWLEDGE</button>
+            
+            <div class="screw bottom-left"></div>
+            <div class="screw bottom-right"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
