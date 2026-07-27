@@ -1,4 +1,4 @@
-\/* =========================================
+/* =========================================
    GENERAL STYLES & LAYOUT
    ========================================= */
 
@@ -170,11 +170,15 @@ body {
 
 .hero-title {
     font-family: 'Titan One', sans-serif;
-    font-size: 7rem;
+    /* Fluid scaling: automatically shrinks on mobile and maxes at 7rem on desktop */
+    font-size: clamp(2.5rem, 12vw, 7rem);
     letter-spacing: 2px;
     color: #ffcc00;
     margin-bottom: 10px;
     text-shadow: -2px -2px 0px #fff, 2px 2px 0px #d9a400, 0px 4px 0px #b38600, 0px 8px 0px #8c6900, 0px 15px 15px rgba(0,0,0,0.6);
+    /* Prevents the text from ever spilling outside the container */
+    width: 100%;
+    word-wrap: break-word;
 }
 
 .hero-tagline {
@@ -396,7 +400,7 @@ textarea {
     .pda-screen { height: 300px; }
     
     /* Shrink Hero Section */
-    .hero-title { font-size: 4rem; }
+    /* .hero-title font-size is now handled dynamically by clamp() above */
     .hero-tagline { font-size: 1.2rem; }
     .physical-signboard { padding: 40px 20px; }
     
