@@ -1,9 +1,31 @@
 // api/chat.js
+import { kv } from '@vercel/kv';
+import { Ratelimit } from '@upstash/ratelimit';
+
+// Create a new ratelimiter that allows 5 requests per 1 minute per IP
+const ratelimit = new Ratelimit({
+    redis: kv,
+    limiter: Ratelimit.slidingWindow(5, '1 m'),
+});
+
 export default async function handler(req, res) {
     // Only allow POST requests
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
+
+    // --- RATE LIMITING START ---
+    // Get the user's IP address from Vercel's headers
+    const ip = req.headers['x-forwarded-for'] || '127.0.0.1';
+
+    // Check the rate limit for this IP
+    const { success } = await ratelimit.limit(`ratelimit_${ip}`);
+
+    if (!success) {
+        console.log(`Blocked IP: ${ip} (Rate limit exceeded)`);
+        return res.status(429).json({ error: "Rate limit exceeded. Please wait a minute." });
+    }
+    // --- RATE LIMITING END ---
 
     const { query, prompt } = req.body;
 
