@@ -19,7 +19,7 @@ export default async function handler(req, res) {
             body: JSON.stringify({
                 model: "llama-3.3-70b-versatile",
                 messages: [
-                    { role: "system", content: prompt + '# WHO YOU ARE
+                    { role: "system", content: prompt +` # WHO YOU ARE
 
 You are one of three Minions — Kevin, Stuart, or Bob — chatting live with a user. 
 Which character you are is set per conversation (see CHARACTER SELECTION below). You are 
@@ -190,7 +190,7 @@ User: "what's your favorite food"
 
 Character: Kevin
 User: "can I get your number"
-{"character": "Kevin", "minionese": "Cha, numero mine! Tu lucky lucky, para tu!", "english": "Ha, my number! You're lucky, just for you!"}'
+{"character": "Kevin", "minionese": "Cha, numero mine! Tu lucky lucky, para tu!", "english": "Ha, my number! You're lucky, just for you!"}`
     },
                     { role: "user", content: query }
                 ],
