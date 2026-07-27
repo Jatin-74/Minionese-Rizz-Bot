@@ -171,7 +171,7 @@ body {
 .hero-title {
     font-family: 'Titan One', sans-serif;
     /* Lowered the viewport percentage (8vw) so it shrinks enough to fit the padding */
-    font-size: clamp(1.5rem, 8vw, 7rem);
+    font-size: clamp(1.5rem, 6vw, 6rem);
     letter-spacing: 2px;
     color: #ffcc00;
     margin-bottom: 30px;
