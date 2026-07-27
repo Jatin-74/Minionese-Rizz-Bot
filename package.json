@@ -1,0 +1,9 @@
+{
+  "name": "minion-communicator",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@upstash/ratelimit": "latest",
+    "@upstash/redis": "latest"
+  }
+}
