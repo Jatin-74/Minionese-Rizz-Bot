@@ -174,7 +174,7 @@ body {
     font-size: clamp(1.5rem, 7vw, 8rem);
     letter-spacing: 2px;
     color: #ffcc00;
-    margin-bottom: 30px;
+    margin-bottom: 35px;
     text-shadow: -2px -2px 0px #fff, 2px 2px 0px #d9a400, 0px 4px 0px #b38600, 0px 8px 0px #8c6900, 0px 15px 15px rgba(0,0,0,0.6);
     width: 100%;
     /* This strictly forces the text to stay on one single line */
@@ -184,7 +184,7 @@ body {
     font-size: 1.2rem;
     font-weight: bold;
     color: #333;
-    margin-bottom: 40px;
+    margin-bottom: 45px;
     text-transform: uppercase;
     letter-spacing: 1px;
     text-shadow: 1px 1px 0px rgba(255,255,255,0.6); 
