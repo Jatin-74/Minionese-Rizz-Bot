@@ -74,7 +74,7 @@ function selectMinion(name) {
     const lcdMinionese = document.getElementById('minionese-output');
     const lcdEnglish = document.getElementById('english-translation');
     
-    lcdMinionese.innerHTML = `[${name.toUpperCase()} SYSTEM ENGAGED]`;
+    lcdMinionese.innerHTML = `[${name.toUpperCase()} is Online]`;
     lcdEnglish.innerHTML = "Ready for input query.";
 }
 
@@ -85,18 +85,18 @@ async function transmit() {
     const lcdEnglish = document.getElementById('english-translation');
 
     if (!currentMinion) {
-        lcdMinionese.innerHTML = "ERR: NO HARDWARE SELECTED";
-        lcdEnglish.innerHTML = "Please initialize a Minion figure.";
+        lcdMinionese.innerHTML = "PLEASE SELECT A CHARACTER";
+        lcdEnglish.innerHTML = "Please choose a Minion figure.";
         return;
     }
 
     if (!currentInputQuery.trim()) {
-        lcdMinionese.innerHTML = "ERR: NULL QUERY";
-        lcdEnglish.innerHTML = "Please enter data into the console.";
+        lcdMinionese.innerHTML = "ERR: NO MESSAGE";
+        lcdEnglish.innerHTML = "Please enter a text into the console.";
         return;
     }
 
-    lcdMinionese.innerHTML = "TRANSMITTING TO SECURE SERVER...<span class='cursor'></span>";
+    lcdMinionese.innerHTML = "TRANSMITTING TO GRU's SERVER...<span class='cursor'></span>";
     lcdEnglish.innerHTML = "";
 
     try {
@@ -124,7 +124,7 @@ async function transmit() {
 
     } catch (error) {
         console.error("Transmission Error:", error);
-        lcdMinionese.innerHTML = "ERR: COMM-LINK FAILED";
+        lcdMinionese.innerHTML = "COMM-LINK FAILED";
         lcdEnglish.innerHTML = "Check server status.";
     }
 }
