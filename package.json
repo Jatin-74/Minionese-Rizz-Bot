@@ -4,6 +4,7 @@
   "type": "module",
   "dependencies": {
     "@upstash/ratelimit": "latest",
-    "@upstash/redis": "latest"
+    "@upstash/redis": "latest",
+    "@vercel/analytics": "^2.0.1"
   }
 }
