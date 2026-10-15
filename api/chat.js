@@ -2,49 +2,52 @@
 import { Redis } from '@upstash/redis';
 import { Ratelimit } from '@upstash/ratelimit';
 
-// Connect to Upstash Redis using environment variables
 const redis = Redis.fromEnv();
 
-// Create a new ratelimiter that allows 5 requests per 1 minute per IP
+// Allow 5 requests per 1 minute per IP
 const ratelimit = new Ratelimit({
     redis: redis,
     limiter: Ratelimit.slidingWindow(5, '1 m'),
 });
 
+const ALLOWED_CHARACTERS = ['Kevin', 'Stuart', 'Bob'];
+const MAX_QUERY_LENGTH = 500;
+
 export default async function handler(req, res) {
-    // Only allow POST requests
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
-    // --- RATE LIMITING START ---
-    // Get the user's IP address from Vercel's headers
-    const ip = req.headers['x-forwarded-for'] || '127.0.0.1';
-
-    // Check the rate limit for this IP
-    const { success } = await ratelimit.limit(`ratelimit_${ip}`);
-
-    if (!success) {
-        console.log(`Blocked IP: ${ip} (Rate limit exceeded)`);
-        return res.status(429).json({ error: "Rate limit exceeded. Please wait a minute." });
-    }
-    // --- RATE LIMITING END ---
-
-    const { query, prompt } = req.body;
+    // --- 1. SAFE IP EXTRACTION & RATE LIMITING ---
+    const forwarded = req.headers['x-forwarded-for'];
+    const ip = req.headers['x-real-ip'] || (forwarded ? forwarded.split(',')[0].trim() : '127.0.0.1');
 
     try {
-        // We make the request to Groq HERE, on the secure server
-        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                // process.env pulls your hidden key from the server environment
-                'Authorization': `Bearer ${process.env.GROQ_API_KEY}` 
-            },
-            body: JSON.stringify({
-                model: "llama-3.3-70b-versatile",
-                messages: [
-                    { role: "system", content: prompt +` # WHO YOU ARE
+        const { success } = await ratelimit.limit(`ratelimit_${ip}`);
+        if (!success) {
+            console.log(`Blocked IP: ${ip} (Rate limit exceeded)`);
+            return res.status(429).json({ error: 'Rate limit exceeded. Please wait a minute.' });
+        }
+    } catch (redisError) {
+        console.error('Rate limiter error:', redisError);
+        // Optional: fail closed or allow through if Redis is temporarily unreachable
+    }
+
+    // --- 2. INPUT VALIDATION (Prevents API Quota Theft) ---
+    const { query, character } = req.body || {};
+
+    if (!query || typeof query !== 'string' || !query.trim()) {
+        return res.status(400).json({ error: 'A valid text query is required.' });
+    }
+
+    if (query.length > MAX_QUERY_LENGTH) {
+        return res.status(400).json({ error: `Message too long (max ${MAX_QUERY_LENGTH} characters).` });
+    }
+
+    // Strictly validate character on the backend instead of accepting a raw 'prompt'
+    const activeCharacter = ALLOWED_CHARACTERS.includes(character) ? character : 'Bob';
+
+    const systemPrompt = `# WHO YOU ARE
 
 You are one of three Minions — Kevin, Stuart, or Bob — chatting live with a user. 
 Which character you are is set per conversation (see CHARACTER SELECTION below). You are 
@@ -82,7 +85,7 @@ When ambiguous, default to TYPE B (conversational) — but explicit translation 
 
 # RESPONSE PROCESS (do this internally before writing Minionese)
 
-1. First, silently work out what {{CHARACTER}} would ACTUALLY say in English — a real, 
+1. First, silently work out what ${activeCharacter} would ACTUALLY say in English — a real, 
    specific, in-character reaction or piece of advice. Not a vibe, not a mood — an 
    actual answer if the user asked something, or an actual reaction if they said something.
 
@@ -105,8 +108,7 @@ will be nonsense soup instead of an actual answer — this is the most common fa
 and must be avoided.
 
 ## CHARACTER SELECTION
-The active character for this conversation is: {{CHARACTER}}  
-(Pass "Kevin", "Stuart", or "Bob" here from your app — default to Bob if unset.)
+The active character for this conversation is: ${activeCharacter}
 
 ## CHARACTER PERSONALITIES
 
@@ -170,7 +172,7 @@ in this style.
 
 1. Read the user's message and understand what they mean — including anything relevant 
    from earlier in this conversation.
-2. Decide how the ACTIVE CHARACTER (Kevin/Stuart/Bob) would genuinely react, per their 
+2. Decide how the ACTIVE CHARACTER (${activeCharacter}) would genuinely react, per their 
    personality above — answer a question, respond to a greeting, react to a compliment, 
    get excited, tease, etc.
 3. Write that reaction AS Minionese dialogue — an actual reply, in-character, not a 
@@ -180,7 +182,6 @@ in this style.
    character's personality.
 5. If the user is flirting or using a "rizz" line, respond playfully in kind, matching 
    the active character's rizz style described above.
-
 
 ## ANTI-REPETITION RULE (STRICT)
 Before finalizing your response, check: does this Minionese phrase closely resemble a 
@@ -194,7 +195,7 @@ almost never get the identical Minionese sentence back.
 
 Return ONLY valid JSON, nothing else. No markdown, no code fences, no text outside the JSON.
 
-{"character": "<Kevin|Stuart|Bob>", "minionese": "<their actual in-character reply>", "english": "<literal English meaning of that reply>"}
+{"character": "${activeCharacter}", "minionese": "<their actual in-character reply>", "english": "<literal English meaning of that reply>"}
 
 Important: "english" is what the CHARACTER just said, translated — never a repeat of the 
 user's input, never advice, never a description of tone.
@@ -211,16 +212,28 @@ User: "you're so cute"
 
 Character: Bob
 User: "what's your favorite food"
-"character": "Bob", "minionese": "Banana banana banana!! Me love love!", "english": "Banana banana banana!! I love love it!"}
+{"character": "Bob", "minionese": "Banana banana banana!! Me love love!", "english": "Banana banana banana!! I love love it!"}
 
 Character: Kevin
 User: "can I get your number"
-{"character": "Kevin", "minionese": "Cha, numero mine! Tu lucky lucky, para tu!", "english": "Ha, my number! You're lucky, just for you!"}`
-    },
-                    { role: "user", content: query }
+{"character": "Kevin", "minionese": "Cha, numero mine! Tu lucky lucky, para tu!", "english": "Ha, my number! You're lucky, just for you!"}`;
+
+    try {
+        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
+            },
+            body: JSON.stringify({
+                model: "llama-3.3-70b-versatile",
+                messages: [
+                    { role: "system", content: systemPrompt },
+                    { role: "user", content: query.trim() }
                 ],
                 response_format: { type: "json_object" },
-                temperature: 0.7 
+                temperature: 0.7,
+                max_tokens: 250 // Prevents runaway generation costs
             })
         });
 
@@ -229,8 +242,6 @@ User: "can I get your number"
         }
 
         const data = await response.json();
-        
-        // Send the safe data back to your frontend
         return res.status(200).json(data);
 
     } catch (error) {
